@@ -1,0 +1,6 @@
+#! /bin/csh -f
+awk -F\t '/./{ printf "<div class=\"entry\">\<div class=\"name\"><a class=off href=\"mailto:%s\" title=\"mail %s\">%s</a> </div><br><div class=\"address\">%s</div><div class=\"date\">Sun 9 Mar 2014 7:05 am</div>\<p><div class=\"message\">Please: deny this permit.</div><p>\</div>\n",$3,$3,$1,$2;}' < $1 > z
+cp entries.txt old.txt
+cat entries.txt z > zz
+mv zz entries.txt
+rm z

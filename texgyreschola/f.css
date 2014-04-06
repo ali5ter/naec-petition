@@ -1,0 +1,28 @@
+@font-face {
+ font-family: 'texgyreschola';
+ font-style: normal;
+ font-weight: 700;
+ src:
+  url('texgyreschola-bold.otf') format('opentype');
+}
+@font-face {
+ font-family: 'texgyreschola';
+ font-style: italic;
+ font-weight: 700;
+ src:
+  url('texgyreschola-bolditalic.otf') format('opentype');
+}
+@font-face {
+ font-family: 'texgyreschola';
+ font-style: italic;
+ font-weight: 400;
+ src:
+  url('texgyreschola-italic.otf') format('opentype');
+}
+@font-face {
+ font-family: 'texgyreschola';
+ font-style: normal;
+ font-weight: 400;
+ src:
+  url('texgyreschola-regular.otf') format('opentype');
+}

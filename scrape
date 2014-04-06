@@ -1,0 +1,4 @@
+#! /bin/csh -f
+
+cat entries.txt | tr  ' ' | sed \
+-e 's/.*mail //' -e 's/\<.*//' -e 's/\(.*\).\>\(.*\)/\2 <\1>/'
