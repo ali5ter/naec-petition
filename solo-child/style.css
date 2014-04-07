@@ -1,0 +1,18 @@
+/*
+Theme Name:     Solo Child
+Theme URI:      http://themetrust.com/themes/solo
+Description:    A Single Page Portfolio child theme for NAEC
+Author:         Alister Lewis-Bowen
+Author URI:     http://different.com
+Template:       solo
+Version:        1.0.0
+Tags:           portfolio, clean, minimal, white, single-page, two-columns, fixed-width, custom-background, translation-ready
+Text Domain:    solo-child
+*/
+
+@import url("../solo/style.css");
+
+/* /////////////////////////////////////////////////////////////////////
+//  Petition
+/////////////////////////////////////////////////////////////////////*/
+
