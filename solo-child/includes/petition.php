@@ -2,55 +2,75 @@
 
     <?php $section_name = $post->post_name; ?>
 
-    <div class="projects">
-    <?php  while (have_posts()) : the_post(); ?>
-        <?php $project_id = get_the_ID(); ?>
+    <?php
 
-        <div id="<?php echo $post->post_name; ?>" class="projectDetails">
-            <span class="<?php echo $section_name; ?> closeBtn"><a href="#index"><?php __('Close Project', 'themetrust'); ?></a></span>
-            <div class="inside">
-                <h2 class="projectHeader"><?php the_title(); ?></h2>
+    $file = $section_name .'-entries.txt';
+    $lines = file($file);
+    $entries = count($lines);
+    $numPages = 1;
 
-                <?php $ttrust_project_images = get_post_meta($project_id, "_ttrust_slideshow_images_value", true); ?>
-                <?php $ttrust_project_images = explode("\n", $ttrust_project_images); ?>
-                <?php if (sizeof($ttrust_project_images) > 1) : ?>
-                <?php reset($ttrust_project_images); ?>
-                <?php $ttrust_slideshow_height = get_post_meta($project_id, "_ttrust_slideshow_height_value", true);?>
-                <div id="slideshow-<?php echo $project_id ?>" class="slideshow" <?php if ($ttrust_slideshow_height) echo 'style="height:'.$ttrust_slideshow_height.'px !important;"'; ?>>
-                    <ul>
-                    <?php $c=1; foreach ($ttrust_project_images as $project_image) {?>
-                        <?php $img_url = str_replace("\r", "", $project_image); ?>
-                        <li <?php if ($ttrust_slideshow_height) echo 'style="height:'.$ttrust_slideshow_height.'px !important;"'; ?>><img src="<?php echo $img_url; ?>" alt=""/></li>
-                    <?php } ?>
-                    </ul>
-                </div>
-                <?php endif; ?>
+    function numsigners(){
+        global $entries;
+        printf("%d",$entries);
+    }
 
-                <?php the_content(); ?>
+    function numpages(){
+        global $entries, $numPages;
+        if(!$_SERVER['QUERY_STRING']) { $n = 1; }
+        else { $n = $_GET['n']; }
+        $d = $entries / 10;
+        $f = floor($d);
+        $numPages = ($d == $f)? $f : $f + 1;
+        if ($n > 1) { echo '<a href="?n='.($n - 1).'">&#9669;</a> '; }
+        for ($i = 1; $i <= $numPages; $i++) {
+            if ($i == $n) { echo $i.' '; }
+            else { echo '<a href="?n='.$i.'">'.$i.'</a> '; }
+        }
+        if ($n < $numPages) { echo '<a href="?n='.($n + 1).'">&#9659;</a> '; }
+    }
 
-            </div>
-         </div>
+    function showbook(){
+        global $lines,$entries;
+        $n = (!$_SERVER['QUERY_STRING'])? 1 : $_GET['n'];
+        $min = 10 * ($n - 1);
+        $max = 10 * $n - 1;
 
-    <?php $i++; endwhile; ?>
+        foreach($lines as $i => $line){
+            if ($i > $max) break;
+            if ($i >= $min){
+                $entryNum = $entries - $i;
+                echo $line;
+            }
+        }
+    }
+
+    ?>
+
+    <div id="navigate"><b><? numsigners(); ?></b> signatories.<br>page: <? numpages() ?></div>
+    <? showbook() ?>
+    <div id="navigate"><b><? numsigners(); ?></b> signatories.<br>page: <? numpages() ?></div>
+
+    <div class=sign><s>Sign the petition.</s>
+    <p>
+    <a name="write"></a>
+    Write your message here and push <b>Sign!</b> to post it.
+    (<a href="mailto:info@NAeastcambridge.org">Mail us</a> if you have any difficulties.)
     </div>
 
-    <?php wp_reset_query();?>
-
-    <?php if ($page_skills) : // if there are a limited number of skills set ?>
-        <?php query_posts( 'skill='.$skill_slugs.'&post_type=projects&posts_per_page=200' ); ?>
-    <?php else : // if not, use all the skills ?>
-        <?php query_posts( 'post_type=projects&posts_per_page=100' ); ?>
-    <?php endif; ?>
-
-    <ul class="projectThumbs clearfix">
-    <?php  while (have_posts()) : the_post(); ?>
-
-        <li id="thumb-<?php echo $post->post_name; ?>">
-            <a href="#<?php echo $post->post_name; ?>" class="<?php echo $section_name; ?>" rel="bookmark" ><?php the_post_thumbnail('ttrust_threeColumn', array('class' => 'thumb', 'alt' => ''.get_the_title().'', 'title' => ''.get_the_title().'')); ?></a>
-            <h1><?php the_title(); ?></h1>
-         </li>
-
-    <?php $i++; endwhile; ?>
-    </ul>
+    <div class="entry">
+    <form method="post" action="<?= $PHP_SELF ?>">
+    <div class="spacer"></div>
+    <label>name:</label><input type="text" name="signername" />
+    <div class="spacer"></div>
+    <label>email:</label><input type="text" name="email" />
+    <div class="spacer"></div>
+    <label>address:</label><input type="text" name="address" />
+    <div class="spacer"></div>
+    <label>message:</label><textarea name="message" rows="5" cols="20"></textarea>
+    <input type="hidden" name="bookurl" value="/petition/index.php" />
+    <div class="spacer"></div>
+    <div id="submit"><input type="submit" name="submit" value="Sign!" class="submit" onmouseover="this.className='submit btnhov'" onmouseout="this.className='submit'"/></div>
+    </form>
+    </div>
 
     <?php $wp_query = $temp_query; ?>
