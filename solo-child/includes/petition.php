@@ -1,76 +1,75 @@
-    <?php $temp_query = $wp_query; ?>
+<?php
+$temp_query = $wp_query;
 
-    <?php $section_name = $post->post_name; ?>
+$_petition_name = $post->post_name;
+$_petition_entries_file = $_petition_name .'-entries.txt';
+$_petition_entries_file_lines = file($_petition_entries_file);
+$_petition_entries = count($_petition_entries_file_lines);
+$_petition_pages = 1;
+$_petition_dateFormat = 'D j M Y';
+$_petition_timeFormat = 'g:i a';
 
-    <?php
+if ($_POST['petition']) petitionEntry();
 
-    $file = $section_name .'-entries.txt';
-    $lines = file($file);
-    $entries = count($lines);
-    $numPages = 1;
+function petitionEntry() {
+    print('ARFARFARAFARAF');
+}
 
-    function numsigners(){
-        global $entries;
-        printf("%d",$entries);
+function petitionSigners() {
+    global $_petition_entries;
+    printf("%d",$_petition_entries);
+}
+
+function petitionPages() {
+    global $_petition_name, $_petition_entries, $_petition_pages;
+
+    if(!$_SERVER['QUERY_STRING']) { $n = 1; }
+    else { $n = $_GET['n']; }
+
+    $d = $_petition_entries / 10;
+    $f = floor($d);
+    $_petition_pages = ($d == $f)? $f : $f + 1;
+    $anchor = '#'.$_petition_name.'_petition_entries';
+
+    if ($n > 1) { echo '<a href="?n='.($n - 1).$anchor.'">&#9669;</a> '; }
+
+    for ($i = 1; $i <= $_petition_pages; $i++) {
+        if ($i == $n) { echo $i.' '; }
+        else { echo '<a href="?n='.$i.$anchor.'">'.$i.'</a> '; }
     }
 
-    function numpages(){
-        global $entries, $numPages;
-        if(!$_SERVER['QUERY_STRING']) { $n = 1; }
-        else { $n = $_GET['n']; }
-        $d = $entries / 10;
-        $f = floor($d);
-        $numPages = ($d == $f)? $f : $f + 1;
-        if ($n > 1) { echo '<a href="?n='.($n - 1).'">&#9669;</a> '; }
-        for ($i = 1; $i <= $numPages; $i++) {
-            if ($i == $n) { echo $i.' '; }
-            else { echo '<a href="?n='.$i.'">'.$i.'</a> '; }
+    if ($n < $_petition_pages) { echo '<a href="?n='.($n + 1).$anchor.'">&#9659;</a> '; }
+}
+
+function petitionBook() {
+    global $_petition_entries_file_lines, $_petition_entries;
+
+    $n = (!$_SERVER['QUERY_STRING'])? 1 : $_GET['n'];
+    $min = 10 * ($n - 1);
+    $max = 10 * $n - 1;
+
+    foreach($_petition_entries_file_lines as $i => $line) {
+        if ($i > $max) break;
+        if ($i >= $min) {
+            $entryNum = $_petition_entries - $i;
+            echo $line;
         }
-        if ($n < $numPages) { echo '<a href="?n='.($n + 1).'">&#9659;</a> '; }
     }
+}
 
-    function showbook(){
-        global $lines,$entries;
-        $n = (!$_SERVER['QUERY_STRING'])? 1 : $_GET['n'];
-        $min = 10 * ($n - 1);
-        $max = 10 * $n - 1;
-
-        foreach($lines as $i => $line){
-            if ($i > $max) break;
-            if ($i >= $min){
-                $entryNum = $entries - $i;
-                echo $line;
-            }
-        }
-    }
-
-    ?>
-
-    <div id="navigate"><b><? numsigners(); ?></b> signatories.<br>page: <? numpages() ?></div>
-    <? showbook() ?>
-    <div id="navigate"><b><? numsigners(); ?></b> signatories.<br>page: <? numpages() ?></div>
-
-    <div class=sign><s>Sign the petition.</s>
-    <p>
-    <a name="write"></a>
-    Write your message here and push <b>Sign!</b> to post it.
-    (<a href="mailto:info@NAeastcambridge.org">Mail us</a> if you have any difficulties.)
-    </div>
-
-    <div class="entry">
-    <form method="post" action="<?= $PHP_SELF ?>">
-    <div class="spacer"></div>
-    <label>name:</label><input type="text" name="signername" />
-    <div class="spacer"></div>
-    <label>email:</label><input type="text" name="email" />
-    <div class="spacer"></div>
-    <label>address:</label><input type="text" name="address" />
-    <div class="spacer"></div>
-    <label>message:</label><textarea name="message" rows="5" cols="20"></textarea>
-    <input type="hidden" name="bookurl" value="/petition/index.php" />
-    <div class="spacer"></div>
-    <div id="submit"><input type="submit" name="submit" value="Sign!" class="submit" onmouseover="this.className='submit btnhov'" onmouseout="this.className='submit'"/></div>
+?>
+<div class="petition inside clearfix">
+    <form method="post" action="<?php print $_SERVER['PHP_SELF']; ?>">
+        <input type="text"  name="signername" placeholder="Your name" autocomplete="off" tabindex="1">
+        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2">
+        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3">
+        <textarea name="message" placeholder="Your comments" tabindex="5"></textarea>
+        <input type="submit" name="submit" tabindex="6" value="Sign the petition!">
     </form>
+    <div id="<?php print $_petition_name; ?>_petition_entries" class="scrollWrap">
+        <p class="pager"><strong><?php petitionSigners(); ?></strong> signatories.<br/>Page: <?php petitionPages() ?></p>
+        <?php petitionBook() ?>
+        <p class="pager"><strong><?php petitionSigners(); ?></strong> signatories.<br/>Page: <?php petitionPages() ?></p>
     </div>
-
-    <?php $wp_query = $temp_query; ?>
+</div>
+<?php $wp_query = $temp_query; ?>

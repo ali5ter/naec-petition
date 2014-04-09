@@ -16,3 +16,7 @@ Text Domain:    solo-child
 //  Petition
 /////////////////////////////////////////////////////////////////////*/
 
+.petition { margin-top: -30px; }
+.petition form { margin-bottom: 2em; }
+.petition input[type="text"] { width: 85%; margin-bottom: 1em; }
+.petition textarea { height: 8em; margin-bottom: 1em; }
