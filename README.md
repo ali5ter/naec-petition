@@ -1,6 +1,15 @@
-Mgration of a standalone PHP application providing a petition for the original Sullivan Courthouse project to a custom Wordpress template for the NAEC website.
+# Wordpress Petition template page
 
-Since the NAEC site uses the Solo Theme (http://themetrust.com/themes/solo), it made sense to migrate the original app to a customer template in a child theme called
+Migration of a standalone PHP application to a custom Wordpress template page
+for the NAEC website.
+
+The original application provided a simple petition (operating rather like an
+old website guestbook feature) for the original Sullivan Courthouse
+redevelopment proposal.
+
+The NAEC site uses a Wordpress theme called Solo
+(http://themetrust.com/themes/solo). So it made sense to integrate the
+functionality into a custom template page delivered in a child theme called
 
     solo-child
 
