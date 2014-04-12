@@ -14,9 +14,9 @@ This Wordpress template uses reCAPTCHA to help catch email spam. For this to wor
 
 The `recaptcha_keys.php` file contents should be of the format:
 ```php
-    <?php
-    $_petition_recaptcha_private_key = 'your_private_key';
-    $_petition_recaptcha_public_key = 'your_public_key';
+<?php
+$_petition_recaptcha_private_key = 'your_private_key';
+$_petition_recaptcha_public_key = 'your_public_key';
 ```
 
 ## References
