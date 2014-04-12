@@ -1,15 +1,12 @@
-# Wordpress Petition template page
+# Wordpress petition page template
 
-Migration of a standalone PHP application to a custom Wordpress template page
-for the NAEC website.
+Re-factoring of a standalone PHP application to a Wordpress custom page
+template for the NAEC website (http://NAeastCambridge.org).
 
-The original application provided a simple petition (operating rather like an
-old website guestbook feature) for the original Sullivan Courthouse
-redevelopment proposal.
+The original application, supplied by Michael Hawley, provided a simple
+petition (operating rather like a website guestbook feature) for the abatement
+of the Sullivan Courthouse redevelopment proposal at 40 Thorndike.
 
 The NAEC site uses a Wordpress theme called Solo
-(http://themetrust.com/themes/solo). So it made sense to integrate the
-functionality into a custom template page delivered in a child theme called
-
-    solo-child
-
+(http://themetrust.com/themes/solo). This template is integrated with Solo by
+constructing a child theme called, `solo-child`
