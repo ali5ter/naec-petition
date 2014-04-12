@@ -1,8 +1,9 @@
 <?php
 /**
  * @file petition.php
- * Logic for a petition custom page template.
- * Re-factoring of a standalone PHP application supplied by Michael Hawley.
+ * Logic, submission form and signatories list for a petition using a custom
+ * page template. Most of this code was re-factoring from a standalone PHP
+ * application supplied by Michael Hawley.
  * @author Alister Lewis-Bowen <alister@different.com>
  * @license GPL-v2
  * @version 1.0

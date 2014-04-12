@@ -9,5 +9,4 @@ of the Sullivan Courthouse redevelopment proposal at 40 Thorndike.
 
 The NAEC site uses a Wordpress theme called Solo
 (http://themetrust.com/themes/solo). This template is integrated with Solo by
-constructing a child theme called, `solo-child`. All code outside of that
-directory is original as supplied.
+constructing a child theme called, `solo-child`.
