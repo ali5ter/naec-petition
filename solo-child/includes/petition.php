@@ -1,4 +1,13 @@
 <?php
+/**
+ * @file petition.php
+ * Logic for a petition custom page template.
+ * Re-factoring of a standalone PHP application supplied by Michael Hawley.
+ * @author Alister Lewis-Bowen <alister@different.com>
+ * @license GPL-v2
+ * @version 1.0
+ */
+
 $temp_query = $wp_query;
 $_petition_name = $post->post_name;
 $_petition_entries_file = '';
