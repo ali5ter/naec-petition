@@ -9,18 +9,22 @@
  * @version 1.0
  */
 
+require_once('recaptchalib.php');
+require_once('recaptcha_keys.php');
+
 $temp_query = $wp_query;
 $_petition_name = $post->post_name;
 $_petition_entries_file = '';
 $_petition_entries_file_lines = '';
 $_petition_entries = 0;
+$_petition_entry = array();
 $_petition_pages = 1;
 
 # TODO: Potential configuration vars to pull out into admin form at future date
-$_petition_entries_file_prefix = '';
+$_petition_entries_file_dir = get_template_directory_uri() .'/../solo-child/db/';
 $_petition_safe_tags = '<a><em><strong><b><i><img><u>';
 $_petition_unsafe_attr = 'javascript:|onclick|ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup|style|class|id';
-$_petition_spam_terms = '{(pdfs|drugs|nikaxywotaqo|pharmapdf|medicpdf|pdf.com)}';
+$_petition_spam_terms = '(pdfs|drugs|nikaxywotaqo|pharmapdf|medicpdf|pdf.com)';
 $_petition_dateFormat = 'D j M Y';
 $_petition_timeFormat = 'g:i a';
 $_petition_entry_format = '
@@ -31,6 +35,7 @@ $_petition_entry_format = '
             <p/><div class="message">%%message%%</div><p/>
         </div>';
 $_petition_email_format = '<a class="off" href="mailto:%%email%%" title="mail %%email%%">%%signername%%</a>';
+$_petition_recaptcha_theme = 'white';
 
 function petitionEntriesFile($petitionName) {
     global $_petition_entries_file_dir,
@@ -44,7 +49,7 @@ function petitionEntriesFile($petitionName) {
 
 function petitionSafeAttributes($tagSource) {
   global $_petition_unsafe_attr;
-  return stripslashes(preg_replace("/$_petition_unsafe_attr/i", 'forbidden', $tagSource));
+  return stripslashes(preg_replace($_petition_unsafe_attr, 'forbidden', $tagSource));
 }
 
 function petitionSafeTags($source) {
@@ -55,7 +60,16 @@ function petitionSafeTags($source) {
 
 function petitionBlank($s) { return ereg("^[ \n\r\t]*$", $s); }
 
-function petitionSpam($s) { return preg_match("/$_petition_spam_terms/i", $s); }
+function petitionSpam() {
+    global $_petition_recaptcha_private_key;
+    require_once('recaptchalib.php');
+    $resp = recaptcha_check_answer ($_petition_recaptcha_private_key,
+        $_SERVER["REMOTE_ADDR"],
+        $_POST["recaptcha_challenge_field"],
+        $_POST["recaptcha_response_field"]);
+    if ($resp->is_valid) return false;
+    return true;
+}
 
 # TODO: Why? Seems to insert a space at 60th char of a word over 60 chars
 #       A proper word wrap would use the PHP wordwrap function
@@ -84,40 +98,42 @@ function petitionProcessEntry() {
         # TODO: Empty message?
     }
     else {
-        global $_petition_etries_file,
+        global $_petition_entries_file,
                $_petition_entry_format,
                $_petition_email_format,
                $_petition_dateFormat,
-               $_petition_timeFormat;
+               $_petition_timeFormat,
+               $_petition_entry;
 
-        petitionEntriesFile($_POST['petition_name']);
+        $_petition_entry = $_POST;
 
-        $message = stripslashes($_POST['message']);
-        $message = petitionWordWrap(petitionSafeTags($message));
-        $message = str_replace(array('&', "\r\n\r\n"),
-            array('&amp;', '</p><p>'), $message);
-        $message = str_replace(array('&amp;gt;', '&amp;lt;', "\r\n"),
-            array('&gt;', '&lt;', '<br />'), $message);
-        $signername = strip_tags(stripslashes($_POST['signername']));
-        $address = strip_tags(stripslashes($_POST['address']));
-        $email = urlencode(strip_tags(stripslashes($_POST['email'])));
-        $email = str_replace("%40","@",$email);
+        if (!petitionSpam()) {
 
-        $vars = array("\n", '%%signername%%', '%%email%%', '%%address%%',
-            '%%message%%', '%%date%%', '%%time%%');
-        $inputs = array('', $signername, $email, $address, $message,
-            date($_petition_dateFormat), date($_petition_timeFormat));
+            petitionEntriesFile($_POST['petition_name']);
 
-        $formatted = $_petition_entry_format;
-        if (!petitionBlank($email)) {
-            $formatted = str_replace("%%signername%%",
-                $_petition_email_format, $formatted);
-        }
-        $formatted = str_replace($vars, $inputs, $formatted);
+            $message = stripslashes($_POST['message']);
+            $message = petitionWordWrap(petitionSafeTags($message));
+            $message = str_replace(array('&', "\r\n\r\n"),
+                array('&amp;', '</p><p>'), $message);
+            $message = str_replace(array('&amp;gt;', '&amp;lt;', "\r\n"),
+                array('&gt;', '&lt;', '<br />'), $message);
+            $signername = strip_tags(stripslashes($_POST['signername']));
+            $address = strip_tags(stripslashes($_POST['address']));
+            $email = urlencode(strip_tags(stripslashes($_POST['email'])));
+            $email = str_replace("%40","@",$email);
 
-        if (!petitionSpam($formatted)) {
-            print $formatted;
-            return;
+            $vars = array("\n", '%%signername%%', '%%email%%', '%%address%%',
+                '%%message%%', '%%date%%', '%%time%%');
+            $inputs = array('', $signername, $email, $address, $message,
+                date($_petition_dateFormat), date($_petition_timeFormat));
+
+            $formatted = $_petition_entry_format;
+            if (!petitionBlank($email)) {
+                $formatted = str_replace("%%signername%%",
+                    $_petition_email_format, $formatted);
+            }
+            $formatted = str_replace($vars, $inputs, $formatted);
+
             $content = '';
             $fs = filesize($_petition_entries_file);
             if ($fs > 0) {
@@ -129,8 +145,9 @@ function petitionProcessEntry() {
             $allEntries = fopen($entryFile, 'w');
             fwrite($allEntries, $newContent);
             fclose($allEntries);
+
+            $_petition_entry = array();
         }
-        print 'ALL DONE';
     }
 }
 
@@ -184,12 +201,14 @@ if ($_GET['petition']) petitionProcessEntry();
 
 ?>
 <div id="<?php print $_petition_name; ?>_petition" class="petition inside clearfix">
+    <script type="text/javascript"> var RecaptchaOptions = { theme: '<?php print $_petition_recaptcha_theme; ?>' };</script>
     <form method="post" action="?petition=sign#<?php print $_petition_name; ?>_petition">
-        <input type="text"  name="signername" placeholder="Your name" autocomplete="off" tabindex="1">
-        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2">
-        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3">
-        <textarea name="message" placeholder="Your comments" tabindex="5"></textarea>
+        <input type="text" name="signername" placeholder="Your name" autocomplete="off" tabindex="1" value='<?php print $_petition_entry['signername']; ?>'>
+        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2" value='<?php print $_petition_entry['email']; ?>'>
+        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3" value='<?php print $_petition_entry['address']; ?>'>
+        <textarea name="message" placeholder="Your comments" tabindex="5"><?php print $_petition_entry['message']; ?></textarea>
         <input type="hidden" name="petition_name" value="<?php print $_petition_name; ?>">
+        <?php echo recaptcha_get_html($_petition_recaptcha_public_key); ?>
         <input type="submit" name="submit" tabindex="6" value="Sign the petition!">
     </form>
     <div class="petition_entries_book">

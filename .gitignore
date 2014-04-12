@@ -2,3 +2,5 @@
 x/
 z
 old.txt
+*-entries.txt
+recaptcha_keys.php
