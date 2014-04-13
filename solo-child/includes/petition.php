@@ -21,7 +21,7 @@ $_petition_entry = array();
 $_petition_pages = 1;
 
 # TODO: Potential configuration vars to pull out into admin form at future date
-$_petition_entries_file_dir = get_template_directory_uri() .'/../solo-child/db/';
+$_petition_entries_file_dir = get_template_directory() .'/../solo-child/db/';
 $_petition_safe_tags = '<a><em><strong><b><i><img><u>';
 $_petition_unsafe_attr = 'javascript:|onclick|ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup|style|class|id';
 $_petition_spam_terms = '(pdfs|drugs|nikaxywotaqo|pharmapdf|medicpdf|pdf.com)';
@@ -43,7 +43,8 @@ function petitionEntriesFile($petitionName) {
            $_petition_entries_file_lines,
            $_petition_entries;
     $_petition_entries_file = $_petition_entries_file_dir . $petitionName .'-entries.txt';
-    $_petition_entries_file_lines = file($_petition_entries_file);
+    $_petition_entries_file_lines = file($_petition_entries_file,
+        FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $_petition_entries = count($_petition_entries_file_lines);
 }
 
@@ -62,7 +63,6 @@ function petitionBlank($s) { return ereg("^[ \n\r\t]*$", $s); }
 
 function petitionSpam() {
     global $_petition_recaptcha_private_key;
-    require_once('recaptchalib.php');
     $resp = recaptcha_check_answer ($_petition_recaptcha_private_key,
         $_SERVER["REMOTE_ADDR"],
         $_POST["recaptcha_challenge_field"],
@@ -137,14 +137,14 @@ function petitionProcessEntry() {
             $content = '';
             $fs = filesize($_petition_entries_file);
             if ($fs > 0) {
-                $oldEntries = fopen($entryFile, 'r');
-                $content = fread($oldEntries, $fs);
-                fclose($oldEntries);
+                $fh = fopen($_petition_entries_file, 'r');
+                $content = fread($fh, $fs);
+                fclose($fh);
             }
             $newContent = $formatted ."\n". $content;
-            $allEntries = fopen($entryFile, 'w');
-            fwrite($allEntries, $newContent);
-            fclose($allEntries);
+            $fh = fopen($_petition_entries_file, 'w');
+            fwrite($fh, $newContent);
+            fclose($fh);
 
             $_petition_entry = array();
         }
@@ -196,8 +196,9 @@ function petitionBook() {
     }
 }
 
-petitionEntriesFile($_petition_name);
 if ($_GET['petition']) petitionProcessEntry();
+
+petitionEntriesFile($_petition_name);
 
 ?>
 <div id="<?php print $_petition_name; ?>_petition" class="petition inside clearfix">
