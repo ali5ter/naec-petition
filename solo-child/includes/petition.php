@@ -71,28 +71,6 @@ function petitionSpam() {
     return true;
 }
 
-# TODO: Why? Seems to insert a space at 60th char of a word over 60 chars
-#       A proper word wrap would use the PHP wordwrap function
-function petitionWordWrap($message) {
-    $maxLength = 60;
-    $cut = ' ';
-    $result = '';
-    $wordlength = 0;
-    $length = strlen($message);
-    $tag = FALSE;
-
-    for ($i = 0; $i < $length; $i++){
-        $char = substr($message, $i, 1);
-        if ($char == '<') { $tag = TRUE; }
-        elseif ($char == '>') { $tag = FALSE; }
-        elseif (!$tag && $char == ' ') { $wordlength = 0; }
-        elseif (!$tag) { $wordlength++; }
-        if (!$tag && !($wordlength%$maxLength)) { $char .= $cut; }
-        $result .= $char;
-    }
-    return $result;
-}
-
 function petitionProcessEntry() {
     if (empty($_POST['message'])) {
         # TODO: Empty message?
@@ -112,7 +90,7 @@ function petitionProcessEntry() {
             petitionEntriesFile($_POST['petition_name']);
 
             $message = stripslashes($_POST['message']);
-            $message = petitionWordWrap(petitionSafeTags($message));
+            $message = petitionSafeTags($message);
             $message = str_replace(array('&', "\r\n\r\n"),
                 array('&amp;', '</p><p>'), $message);
             $message = str_replace(array('&amp;gt;', '&amp;lt;', "\r\n"),
