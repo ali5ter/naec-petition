@@ -20,7 +20,7 @@ $_petition_entries_file_lines = '';
 $_petition_entries = 0;
 $_petition_entry = array();
 $_petition_pages = 1;
-$_petition_status_message = $_petition_status['OK'];
+$_petition_status_message = '';
 
 # TODO: Potential configuration vars to pull out into admin form at future date
 $_petition_entries_file_dir = get_template_directory() .'/../solo-child/db/';
