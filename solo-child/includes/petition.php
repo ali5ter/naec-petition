@@ -11,6 +11,7 @@
 
 require_once('recaptchalib.php');
 require_once('recaptcha_keys.php');
+require_once('petition_status_messages.php');
 
 $temp_query = $wp_query;
 $_petition_name = $post->post_name;
@@ -19,6 +20,7 @@ $_petition_entries_file_lines = '';
 $_petition_entries = 0;
 $_petition_entry = array();
 $_petition_pages = 1;
+$_petition_status_message = $_petition_status['OK'];
 
 # TODO: Potential configuration vars to pull out into admin form at future date
 $_petition_entries_file_dir = get_template_directory() .'/../solo-child/db/';
@@ -72,8 +74,10 @@ function petitionSpam() {
 }
 
 function petitionProcessEntry() {
+    global $_petition_status_message,
+           $_petition_status;
     if (empty($_POST['message'])) {
-        # TODO: Empty message?
+        $_petition_status_message = $_petition_status['NO_MESSAGE'];
     }
     else {
         global $_petition_entries_file,
@@ -85,7 +89,10 @@ function petitionProcessEntry() {
 
         $_petition_entry = $_POST;
 
-        if (!petitionSpam()) {
+        $email = (empty($_POST['email']) || (!empty($_POST['email']) &&
+                filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)));
+
+        if (!petitionSpam() && $email) {
 
             petitionEntriesFile($_POST['petition_name']);
 
@@ -125,6 +132,11 @@ function petitionProcessEntry() {
             fclose($fh);
 
             $_petition_entry = array();
+            $_petition_status_message = $_petition_status['ENTRY_ADDED'];
+        }
+        else {
+            if (!$email) $_petition_status_message = $_petition_status['INVALID_EMAIL'];
+            else $_petition_status_message = $_petition_status['RECAPTURE_FAILED'];
         }
     }
 }
@@ -189,6 +201,7 @@ petitionEntriesFile($_petition_name);
         <input type="hidden" name="petition_name" value="<?php print $_petition_name; ?>">
         <?php echo recaptcha_get_html($_petition_recaptcha_public_key); ?>
         <input type="submit" name="submit" tabindex="6" value="Sign the petition!">
+        <p class="petition_status_msg"><?php print $_petition_status_message; ?></p>
     </form>
     <div class="petition_entries_book">
         <p class="pager"><strong><?php petitionSigners(); ?></strong> signatories.<br/><?php petitionPages() ?></p>
