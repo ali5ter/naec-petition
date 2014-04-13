@@ -18,6 +18,7 @@ The `recaptcha_keys.php` file contents should be of the format:
 $_petition_recaptcha_private_key = 'your_private_key';
 $_petition_recaptcha_public_key = 'your_public_key';
 ```
+The status messages returned by the petition submission form can be edited in the `petition_status_messages.php` file under [solo-child/includes](solo-child/includes/).
 
 ## References
 
