@@ -8,9 +8,10 @@
  */
 
 $_petition_status = array(
+    'OK' => ' ',
     'ENTRY_ADDED' => 'Your entry was added to the petition. Thank you!',
     'NO_MESSAGE' => 'Please supply a comment for the petition. Thank you!',
-    'INVALID_EMAIL' => 'The email address you supplied was no valid. Please correct or leave the email field blank.',
+    'INVALID_EMAIL' => 'Please provide a valid email address or leave the field blank.',
     'TIME_LIMIT' => 'There was a problem with your form submission. Please wait %%time_limit%%i minutes and sign the petition again.',
-    'SPAMBOT' => '',
+    'SPAMBOT' => ' ',
 );

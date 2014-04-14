@@ -33,8 +33,9 @@ Text Domain:    solo-child
     border-radius: .5em;
     margin-bottom: 1em;
 }
+.petition .off { pointer-events: none; cursor: default; }
 .petition .entry .name { font-size: 1.2em; }
-.petition .entry .address { margin-top: -0.8em; }
+.petition .entry .address { display:none; visibility: hidden; }
 .petition .entry .date { position: absolute; top: 1em; right: 1em; }
 .petition .entry .message {
     margin-left: 1em;
@@ -44,3 +45,4 @@ Text Domain:    solo-child
     line-height: 1.7em;
 }
 .petition .signatories { font-style: italic; font-size: 1.5em; }
+.petition .status { display: block; height: 1.5em; color: #c20000; margin-top: -1.8em; margin-left: 12em; }

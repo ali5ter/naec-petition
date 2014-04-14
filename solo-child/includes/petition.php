@@ -18,7 +18,7 @@ $_petition_entries_file_lines = '';
 $_petition_entries = 0;
 $_petition_entry = array();
 $_petition_pages = 1;
-$_petition_status_message = '';
+$_petition_status_message = $_petition_status['OK'];
 
 # TODO: Potential configuration vars to pull out into admin form at future date
 $_petition_entries_file_dir = get_template_directory() .'/../solo-child/db/';
@@ -193,7 +193,7 @@ petitionEntriesFile($_petition_name);
         <input style="display:none;" type="text" name="<?php print $_petition_honeypot_field; ?>" value="" />
         <input style="display:none;" type="text" name="timestamp" value="<?php print time(); ?>" />
         <input type="submit" name="submit" tabindex="6" value="Sign the petition!">
-        <p class="petition_status_msg"><?php print $_petition_status_message; ?></p>
+        <p class="status"><?php print $_petition_status_message; ?></p>
     </form>
     <div class="petition_entries_book">
         <p class="pager"><span class="signatories"><strong><?php petitionSigners(); ?></strong> signatories</span><br/><?php petitionPages() ?></p>
