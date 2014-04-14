@@ -11,5 +11,6 @@ $_petition_status = array(
     'ENTRY_ADDED' => 'Your entry was added to the petition. Thank you!',
     'NO_MESSAGE' => 'Please supply a comment for the petition. Thank you!',
     'INVALID_EMAIL' => 'The email address you supplied was no valid. Please correct or leave the email field blank.',
-    'RECAPTURE_FAILED' => 'Try answering the Captcha text again.',
+    'TIME_LIMIT' => 'There was a problem with your form submission. Please wait %%time_limit%%i minutes and sign the petition again.',
+    'SPAMBOT' => '',
 );
