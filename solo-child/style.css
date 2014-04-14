@@ -23,3 +23,24 @@ Text Domain:    solo-child
 .petition .pager .selected,
 .petition .pager .first,
 .petition .pager .last { font-size: 130%; font-weight: bold}
+.petition .entry {
+    position: relative;
+    background-color: #ebebeb;
+    border: 1px solid #dadbdc;
+    padding: 1em;
+    -webkit-border-radius: .5em;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+    margin-bottom: 1em;
+}
+.petition .entry .name { font-size: 1.2em; }
+.petition .entry .address { margin-top: -0.8em; }
+.petition .entry .date { position: absolute; top: 1em; right: 1em; }
+.petition .entry .message {
+    margin-left: 1em;
+    font-style: italic;
+    font-size: 1.2em;
+    font-family: "Droid Serif", Georgia, Times, "Times New Roman", serif;
+    line-height: 1.7em;
+}
+.petition .signatories { font-style: italic; font-size: 1.5em; }

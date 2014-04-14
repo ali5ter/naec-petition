@@ -196,9 +196,9 @@ petitionEntriesFile($_petition_name);
         <p class="petition_status_msg"><?php print $_petition_status_message; ?></p>
     </form>
     <div class="petition_entries_book">
-        <p class="pager"><strong><?php petitionSigners(); ?></strong> signatories.<br/><?php petitionPages() ?></p>
+        <p class="pager"><span class="signatories"><strong><?php petitionSigners(); ?></strong> signatories</span><br/><?php petitionPages() ?></p>
         <?php petitionBook() ?>
-        <p class="pager"><strong><?php petitionSigners(); ?></strong> signatories.<br/><?php petitionPages() ?></p>
+        <p class="pager"><span class="signatories"><strong><?php petitionSigners(); ?></strong> signatories</span><br/><?php petitionPages() ?></p>
     </div>
 </div>
 <?php $wp_query = $temp_query; ?>
