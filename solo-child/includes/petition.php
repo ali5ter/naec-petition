@@ -178,17 +178,17 @@ function petitionBook() {
     }
 }
 
-if ($_GET['petition']) petitionProcessEntry();
+if (isset($_GET['petition'])) petitionProcessEntry();
 
 petitionEntriesFile($_petition_name);
 
 ?>
 <div id="<?php print $_petition_name; ?>_petition" class="petition inside clearfix">
     <form method="post" action="?petition=sign#<?php print $_petition_name; ?>_petition">
-        <input type="text" name="signername" placeholder="Your name" autocomplete="off" tabindex="1" value='<?php print $_petition_entry['signername']; ?>'>
-        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2" value='<?php print $_petition_entry['email']; ?>'>
-        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3" value='<?php print $_petition_entry['address']; ?>'>
-        <textarea name="message" placeholder="Your comments" tabindex="5"><?php print $_petition_entry['message']; ?></textarea>
+        <input type="text" name="signername" placeholder="Your name" autocomplete="off" tabindex="1" value='<?php if (!empty($_petition_entry['signername'])) print $_petition_entry['signername']; ?>'>
+        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2" value='<?php if (!empty($_petition_entry['email'])) print $_petition_entry['email']; ?>'>
+        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3" value='<?php if (!empty($_petition_entry['address'])) print $_petition_entry['address']; ?>'>
+        <textarea name="message" placeholder="Your comments" tabindex="5"><?php if (!empty($_petition_entry['message'])) print $_petition_entry['message']; ?></textarea>
         <input type="hidden" name="petition_name" value="<?php print $_petition_name; ?>">
         <input style="display:none;" type="text" name="<?php print $_petition_honeypot_field; ?>" value="" />
         <input style="display:none;" type="text" name="timestamp" value="<?php print time(); ?>" />
