@@ -19,7 +19,10 @@ Text Domain:    solo-child
 .petition { margin-top: -30px; }
 .petition form { margin-bottom: 2em; }
 .petition input[type="text"] { width: 85%; margin-bottom: 1em; }
-.petition textarea { height: 8em; margin-bottom: 1em; }
+.petition input:nth-of-type(2),
+.petition input:nth-of-type(3),
+.petition input:nth-of-type(4) { display:none; }
+.petition textarea { height: 8em; margin-bottom: 1em; width: 85%; }
 .petition .pager .selected,
 .petition .pager .first,
 .petition .pager .last { font-size: 130%; font-weight: bold}

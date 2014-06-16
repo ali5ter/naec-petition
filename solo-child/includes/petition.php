@@ -2,8 +2,8 @@
 /**
  * @file petition.php
  * Logic, submission form and signatories list for a petition using a custom
- * page template. Most of this code was re-factoring from a standalone PHP
- * application supplied by Michael Hawley.
+ * page template. This code was significantly re-factoring from a standalone
+ * PHP application supplied by Michael Hawley.
  * @author Alister Lewis-Bowen <alister@different.com>
  * @license GPL-v2
  * @version 1.0
@@ -35,9 +35,14 @@ $_petition_entry_format = '
             <p/><div class="message">%%message%%</div><p/>
         </div>';
 $_petition_email_format = '<a class="off" href="mailto:%%email%%" title="mail %%email%%">%%signername%%</a>';
-$_petition_honeypot_field = '_email';
+$_petition_honeypot_field = 'honeypot';
 $_petition_time_limit = '5';  # seconds
+$_petition_secret = 'wimple_my_frottock_pouch';
+$_petition_salt = md5(time().$_SERVER["REMOTE_ADDR"].$post->ID.$_petition_secret);
 
+function petitionX($s, $salt) {
+    return preg_replace('/[.]/', '', crypt(md5($s), $salt));
+}
 
 function petitionEntriesFile($petitionName) {
     global $_petition_entries_file_dir,
@@ -61,25 +66,47 @@ function petitionSafeTags($source) {
     return preg_replace('/<(.*?)>/ie', "'<'.petitionSafeAttributes('\\1').'>'", $source);
 }
 
-function petitionBlank($s) { return ereg("^[ \n\r\t]*$", $s); }
+function petitionBlank($s) { return preg_match("/^[ \n\r\t]*$/", $s); }
 
 function petitionProcessEntry() {
     global $_petition_status_message,
+           $_petition_honeypot_field,
+           $_petition_time_limit,
            $_petition_status,
            $_petition_entry;
 
-    $_petition_entry = $_POST;
+    // decrypt POST keys
 
-    if (empty($_POST['message'])) {
+    $__salt = $_POST['salt'];
+    $__keys = array(
+        'petition_name',
+        $_petition_honeypot_field,
+        'timestamp',
+        'signername',
+        'email',
+        'address',
+        'message');
+    foreach($_POST as $key => $value) {
+        foreach($__keys as $k) {
+            if ($key == petitionX($k, $__salt)) {
+                $__[$k] = $value;
+            }
+        }
+    }
+    $_petition_entry = $__;
+
+    // validate form
+
+    if (empty($__['message'])) {
         $_petition_status_message = $_petition_status['NO_MESSAGE'];
     }
-    elseif (!empty($_POST['email']) &&  !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+    elseif (!empty($__['email']) &&  !filter_var($__['email'], FILTER_VALIDATE_EMAIL)) {
         $_petition_status_message = $_petition_status['INVALID_EMAIL'];
     }
-    elseif (time() < ($_POST['timestamp'] + $_petition_time_limit)) {
+    elseif (time() < ($__['timestamp'] + $_petition_time_limit)) {
         $_petition_status_message = str_replace($_petition_status['TIME_LIMIT'], array($_petition_time_limit));
     }
-    elseif (!empty($_POST[$_petition_honeypot_field])) {
+    elseif (!empty($__[$_petition_honeypot_field])) {
         $_petition_entry = array();
         $_petition_status_message = $_petition_status['SPAMBOT'];
     }
@@ -91,17 +118,17 @@ function petitionProcessEntry() {
                $_petition_timeFormat,
                $_petition_entry;
 
-        petitionEntriesFile($_POST['petition_name']);
+        petitionEntriesFile($__['petition_name']);
 
-        $message = stripslashes($_POST['message']);
+        $message = stripslashes($__['message']);
         $message = petitionSafeTags($message);
         $message = str_replace(array('&', "\r\n\r\n"),
             array('&amp;', '</p><p>'), $message);
         $message = str_replace(array('&amp;gt;', '&amp;lt;', "\r\n"),
             array('&gt;', '&lt;', '<br />'), $message);
-        $signername = strip_tags(stripslashes($_POST['signername']));
-        $address = strip_tags(stripslashes($_POST['address']));
-        $email = urlencode(strip_tags(stripslashes($_POST['email'])));
+        $signername = strip_tags(stripslashes($__['signername']));
+        $address = strip_tags(stripslashes($__['address']));
+        $email = urlencode(strip_tags(stripslashes($__['email'])));
         $email = str_replace("%40","@",$email);
 
         $vars = array("\n", '%%signername%%', '%%email%%', '%%address%%',
@@ -178,21 +205,24 @@ function petitionBook() {
     }
 }
 
-if (isset($_GET['petition'])) petitionProcessEntry();
+if (!empty($_GET['petition'])) petitionProcessEntry();
 
 petitionEntriesFile($_petition_name);
+
+//print var_dump($_petition_entry);
 
 ?>
 <div id="<?php print $_petition_name; ?>_petition" class="petition inside clearfix">
     <form method="post" action="?petition=sign#<?php print $_petition_name; ?>_petition">
-        <input type="text" name="signername" placeholder="Your name" autocomplete="off" tabindex="1" value='<?php if (!empty($_petition_entry['signername'])) print $_petition_entry['signername']; ?>'>
-        <input type="text" name="email" placeholder="Your email address" autocomplete="off" tabindex="2" value='<?php if (!empty($_petition_entry['email'])) print $_petition_entry['email']; ?>'>
-        <input type="text" name="address" placeholder="Your home address" autocomplete="off" tabindex="3" value='<?php if (!empty($_petition_entry['address'])) print $_petition_entry['address']; ?>'>
-        <textarea name="message" placeholder="Your comments" tabindex="5"><?php if (!empty($_petition_entry['message'])) print $_petition_entry['message']; ?></textarea>
-        <input type="hidden" name="petition_name" value="<?php print $_petition_name; ?>">
-        <input style="display:none;" type="text" name="<?php print $_petition_honeypot_field; ?>" value="" />
-        <input style="display:none;" type="text" name="timestamp" value="<?php print time(); ?>" />
-        <input type="submit" name="submit" tabindex="6" value="Sign the petition!">
+        <input type="hidden" name="<?php print petitionX('petition_name', $_petition_salt); ?>" value="<?php print $_petition_name; ?>">
+        <input type="text" name="salt" value="<?php print $_petition_salt; ?>" />
+        <input type="text" name="<?php print petitionX($_petition_honeypot_field, $_petition_salt); ?>" placeholder="Your nickname" value="" />
+        <input type="text" name="<?php print petitionX('timestamp', $_petition_salt); ?>" value="<?php print time(); ?>" />
+        <input type="text" name="<?php print petitionX('signername', $_petition_salt); ?>" placeholder="Your name" autocomplete="off" tabindex="1" value='<?php if (!empty($_petition_entry['signername'])) print $_petition_entry['signername']; ?>'>
+        <input type="text" name="<?php print petitionX('email', $_petition_salt); ?>" placeholder="Your email address" autocomplete="off" tabindex="3" value='<?php if (!empty($_petition_entry['email'])) print $_petition_entry['email']; ?>'>
+        <input type="text" name="<?php print petitionX('address', $_petition_salt); ?>" placeholder="Your home address" autocomplete="off" tabindex="3" value='<?php if (!empty($_petition_entry['address'])) print $_petition_entry['address']; ?>'>
+        <textarea name="<?php print petitionX('message', $_petition_salt); ?>" placeholder="Your comments" tabindex="5"><?php if (!empty($_petition_entry['message'])) print $_petition_entry['message']; ?></textarea>
+        <input type="submit" tabindex="6" value="Sign the petition!">
         <p class="status"><?php print $_petition_status_message; ?></p>
     </form>
     <div class="petition_entries_book">
