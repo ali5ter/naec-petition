@@ -9,6 +9,7 @@
  * @version 1.0
  */
 
+// TODO: in18n messages
 require_once('petition_status_messages.php');
 
 $temp_query = $wp_query;
@@ -40,10 +41,20 @@ $_petition_time_limit = '5';  # seconds
 $_petition_secret = 'wimple_my_frottock_pouch';
 $_petition_salt = md5(time().$_SERVER["REMOTE_ADDR"].$post->ID.$_petition_secret);
 
+/**
+ * Encrypt a string
+ * @param String to encrypt
+ * @param String representing salt for the crypt algo
+ * @return Encripted string
+ */
 function petitionX($s, $salt) {
     return preg_replace('/[.]/', '', crypt(md5($s), $salt));
 }
 
+/**
+ * Fetch entries file
+ * @param String name of the petition
+ */
 function petitionEntriesFile($petitionName) {
     global $_petition_entries_file_dir,
            $_petition_entries_file,
@@ -55,19 +66,37 @@ function petitionEntriesFile($petitionName) {
     $_petition_entries = count($_petition_entries_file_lines);
 }
 
+/**
+ * Strip unsafe HTML attributes
+ * @param String HTML
+ * @return String of cleaned up HTML
+ */
 function petitionSafeAttributes($tagSource) {
   global $_petition_unsafe_attr;
   return stripslashes(preg_replace($_petition_unsafe_attr, 'forbidden', $tagSource));
 }
 
+/**
+ * Strip tags from HTML
+ * @param String HTML
+ * @return String of cleaned up HTML
+ */
 function petitionSafeTags($source) {
     global $_petition_safe_tags;
     $source = strip_tags($source, $_petition_safe_tags);
     return preg_replace('/<(.*?)>/ie', "'<'.petitionSafeAttributes('\\1').'>'", $source);
 }
 
+/**
+ * Strip blank lines
+ * @param String input
+ * @return String String of cleaned input
+ */
 function petitionBlank($s) { return preg_match("/^[ \n\r\t]*$/", $s); }
 
+/**
+ * Process a submitted petition form
+ */
 function petitionProcessEntry() {
     global $_petition_status_message,
            $_petition_honeypot_field,
@@ -75,7 +104,7 @@ function petitionProcessEntry() {
            $_petition_status,
            $_petition_entry;
 
-    // decrypt POST keys
+    // decrypt form names
 
     $__salt = $_POST['salt'];
     $__keys = array(
@@ -111,6 +140,9 @@ function petitionProcessEntry() {
         $_petition_status_message = $_petition_status['SPAMBOT'];
     }
     else {
+
+        // process form propper
+
         global $_petition_entries_file,
                $_petition_entry_format,
                $_petition_email_format,
@@ -160,11 +192,17 @@ function petitionProcessEntry() {
     }
 }
 
+/**
+ * @return formatted output of folks who singed the petition
+ */
 function petitionSigners() {
     global $_petition_entries;
     printf("%d",$_petition_entries);
 }
 
+/**
+ * @return formatted output of petition pagination
+ */
 function petitionPages() {
     global $_petition_name,
            $_petition_entries,
@@ -188,11 +226,14 @@ function petitionPages() {
     if ($n < $_petition_pages) { echo '<a class="last" href="?n='.($n + 1).$anchor.'">&#9659;</a> '; }
 }
 
+/**
+ * @return formatted output of petition entries based on pagination
+ */
 function petitionBook() {
     global $_petition_entries_file_lines,
            $_petition_entries;
 
-    $n = (empty($_GET['n']))? 1 : $_GET['n'];
+    $n = (empty($_GET['n']))? 1 : $_GET['n']; // n = page
     $min = 10 * ($n - 1);
     $max = 10 * $n - 1;
 
@@ -205,11 +246,13 @@ function petitionBook() {
     }
 }
 
+/* ---------------------------------------------------------------------------
+ * main
+ */
+
 if (!empty($_GET['petition'])) petitionProcessEntry();
 
 petitionEntriesFile($_petition_name);
-
-//print var_dump($_petition_entry);
 
 ?>
 <div id="<?php print $_petition_name; ?>_petition" class="petition inside clearfix">
