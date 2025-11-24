@@ -1,5 +1,3 @@
-> **⚠️ Archived 2025-08-25. No longer maintained.**
-
 # Wordpress petition page template
 
 Re-factoring of a standalone PHP application as a Wordpress custom page template for the NAEC website.
